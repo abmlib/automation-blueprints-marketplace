@@ -1,0 +1,20 @@
+{
+  "name": "sdk-usage-examples",
+  "version": "1.0.0",
+  "description": "Usage examples for @automation-blueprints SDK packages",
+  "private": true,
+  "scripts": {
+    "validate": "ts-node validate-blueprint.ts",
+    "convert": "ts-node convert-to-platforms.ts",
+    "all": "npm run validate && npm run convert"
+  },
+  "dependencies": {
+    "@automation-blueprints/dsl": "file:../../packages/dsl",
+    "@automation-blueprints/adapters": "file:../../packages/adapters"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.5.3"
+  }
+}

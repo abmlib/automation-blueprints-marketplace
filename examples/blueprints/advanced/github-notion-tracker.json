@@ -1,0 +1,88 @@
+{
+  "id": "github-issue-tracker",
+  "name": "GitHub Issue → Notion Database",
+  "version": "2.0.1",
+  "apps": ["github", "notion"],
+  "trigger": {
+    "app": "github",
+    "event": "issues.opened",
+    "filters": [
+      {
+        "field": "repository.name",
+        "operator": "equals",
+        "value": "main-product"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "create-notion-page",
+      "app": "notion",
+      "action": "create_page",
+      "inputs": {
+        "parent": {
+          "database_id": "issues-database-id"
+        },
+        "properties": {
+          "Title": {
+            "title": [
+              {
+                "text": {
+                  "content": "{{trigger.issue.title}}"
+                }
+              }
+            ]
+          },
+          "Status": {
+            "select": {
+              "name": "Open"
+            }
+          },
+          "Priority": {
+            "select": {
+              "name": "{{trigger.issue.labels.includes(\"priority:high\") ? \"High\" : \"Medium\"}}"
+            }
+          },
+          "Assignee": {
+            "people": "{{trigger.issue.assignees}}"
+          }
+        },
+        "children": [
+          {
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+              "rich_text": [
+                {
+                  "type": "text",
+                  "text": {
+                    "content": "{{trigger.issue.body}}"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "outputs": ["page_id", "page_url"]
+    }
+  ],
+  "fixtures": {
+    "trigger": {
+      "issue": {
+        "title": "Fix login bug",
+        "body": "Users are unable to login with their credentials",
+        "labels": ["bug", "priority:high"],
+        "assignees": ["john.doe"]
+      },
+      "repository": {
+        "name": "main-product"
+      }
+    }
+  },
+  "compatibility": {
+    "zapier": ">=12.0.0",
+    "make": ">=2.1.0",
+    "n8n": ">=0.200.0"
+  }
+}

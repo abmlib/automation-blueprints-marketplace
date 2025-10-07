@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "composite": true,
+    "tsBuildInfoFile": "./tsconfig.tsbuildinfo",
+    "module": "CommonJS",
+    "target": "ES2020"
+  },
+  "include": ["*.ts"],
+  "exclude": ["dist", "__tests__"]
+}

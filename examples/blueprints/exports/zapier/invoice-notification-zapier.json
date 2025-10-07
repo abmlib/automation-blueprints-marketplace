@@ -1,0 +1,16 @@
+{
+  "name": "invoice-notification",
+  "version": "1.2.0",
+  "triggers": {
+    "invoice.created": {
+      "operation": {
+        "perform": {
+          "url": "https://example.com/trigger/invoice.created",
+          "method": "POST"
+        }
+      }
+    }
+  },
+  "searches": {},
+  "creates": {}
+}

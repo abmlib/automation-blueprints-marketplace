@@ -1,0 +1,80 @@
+{
+  "name": "invoice-notification",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "/invoice.created",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "invoice.created"
+    },
+    {
+      "parameters": {
+        "template": "New invoice #{{trigger.invoice.number}} for ${{trigger.invoice.amount_due}} created for {{trigger.customer.name}}"
+      },
+      "name": "format-message",
+      "type": "n8n-nodes-base.formatter",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "channel": "#billing",
+        "text": "{{steps.format-message.formatted_text}}",
+        "attachments": [
+          {
+            "color": "good",
+            "fields": [
+              {
+                "title": "Customer",
+                "value": "{{trigger.customer.name}}",
+                "short": true
+              },
+              {
+                "title": "Amount",
+                "value": "${{trigger.invoice.amount_due}}",
+                "short": true
+              }
+            ]
+          }
+        ]
+      },
+      "name": "send-notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "format-message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "format-message": {
+      "main": [
+        [
+          {
+            "node": "send-notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "tags": []
+}

@@ -1,0 +1,44 @@
+{
+  "id": "hubspot-slack-simple",
+  "name": "HubSpot to Slack Notifications (Simple)",
+  "version": "1.0.0",
+  "apps": ["hubspot", "slack"],
+  "trigger": {
+    "app": "hubspot",
+    "event": "contact.created",
+    "filters": [
+      {
+        "field": "lifecycle_stage",
+        "operator": "equals",
+        "value": "lead"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "send-notification",
+      "app": "slack",
+      "action": "send_message",
+      "inputs": {
+        "channel": "#sales",
+        "text": "New lead: {{trigger.contact.firstname}} {{trigger.contact.lastname}} ({{trigger.contact.email}})"
+      }
+    }
+  ],
+  "fixtures": {
+    "trigger": {
+      "contact": {
+        "id": "12345",
+        "email": "test@example.com",
+        "firstname": "Test",
+        "lastname": "User",
+        "lifecycle_stage": "lead"
+      }
+    }
+  },
+  "compatibility": {
+    "zapier": ">=8.0.0",
+    "make": ">=1.5.0",
+    "n8n": ">=0.150.0"
+  }
+}

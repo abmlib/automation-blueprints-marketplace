@@ -1,0 +1,27 @@
+{
+  "name": "@automation-blueprints/adapters",
+  "version": "0.1.0",
+  "description": "Runtime adapters for exporting automation blueprints",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "jest --config jest.config.ts",
+    "docs": "typedoc",
+    "docs:watch": "typedoc --watch"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "typescript": "^5.5.3",
+    "typedoc": "^0.25.0"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "name": "invoice-notification",
+  "flow": [
+    {
+      "id": 1,
+      "module": "stripe:invoice.created",
+      "version": 1,
+      "parameters": {},
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0
+        },
+        "restore": {},
+        "expect": [
+          {
+            "name": "event",
+            "type": "text",
+            "label": "Event Type",
+            "required": false
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "module": "formatter:text_format",
+      "version": 1,
+      "parameters": {
+        "template": "New invoice #{{trigger.invoice.number}} for ${{trigger.invoice.amount_due}} created for {{trigger.customer.name}}"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 150
+        },
+        "restore": {}
+      }
+    },
+    {
+      "id": 3,
+      "module": "slack:send_message",
+      "version": 1,
+      "parameters": {
+        "channel": "#billing",
+        "text": "{{steps.format-message.formatted_text}}",
+        "attachments": [
+          {
+            "color": "good",
+            "fields": [
+              {
+                "title": "Customer",
+                "value": "{{trigger.customer.name}}",
+                "short": true
+              },
+              {
+                "title": "Amount",
+                "value": "${{trigger.invoice.amount_due}}",
+                "short": true
+              }
+            ]
+          }
+        ]
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 300
+        },
+        "restore": {}
+      }
+    }
+  ],
+  "metadata": {
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "id": "lead-to-contract-v1",
+  "name": "Lead → KYC → Contract (HubSpot + Sumsub + PandaDoc + Slack)",
+  "version": "1.0.0",
+  "apps": ["hubspot", "sumsub", "pandadoc", "slack"],
+  "trigger": {
+    "app": "hubspot",
+    "event": "contact.created",
+    "filters": [
+      {
+        "field": "lifecycle_stage",
+        "operator": "equals",
+        "value": "lead"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "kyc-check",
+      "app": "sumsub",
+      "action": "create_applicant",
+      "inputs": {
+        "externalUserId": "{{trigger.contact.id}}",
+        "email": "{{trigger.contact.email}}",
+        "firstName": "{{trigger.contact.firstname}}",
+        "lastName": "{{trigger.contact.lastname}}"
+      },
+      "outputs": ["applicant_id", "verification_url"]
+    },
+    {
+      "id": "create-contract",
+      "app": "pandadoc",
+      "action": "create_document",
+      "condition": "{{steps.kyc-check.status}} === \"approved\"",
+      "inputs": {
+        "template_id": "service-agreement-template",
+        "recipients": [
+          {
+            "email": "{{trigger.contact.email}}",
+            "first_name": "{{trigger.contact.firstname}}",
+            "last_name": "{{trigger.contact.lastname}}",
+            "role": "client"
+          }
+        ]
+      },
+      "outputs": ["document_id", "signing_url"]
+    },
+    {
+      "id": "notify-team",
+      "app": "slack",
+      "action": "send_message",
+      "inputs": {
+        "channel": "#sales",
+        "text": "New contract created for {{trigger.contact.firstname}} {{trigger.contact.lastname}} - {{steps.create-contract.signing_url}}"
+      }
+    }
+  ],
+  "fixtures": {
+    "trigger": {
+      "contact": {
+        "id": "12345",
+        "email": "test@example.com",
+        "firstname": "Test",
+        "lastname": "User",
+        "lifecycle_stage": "lead"
+      }
+    }
+  },
+  "tests": [
+    {
+      "name": "should create KYC check for new lead",
+      "input": "{{fixtures.trigger}}",
+      "expectations": [
+        {
+          "step": "kyc-check",
+          "field": "externalUserId",
+          "value": "12345"
+        }
+      ]
+    }
+  ],
+  "compatibility": {
+    "zapier": ">=10.0.0",
+    "make": ">=2.0.0",
+    "n8n": ">=0.180.0"
+  }
+}

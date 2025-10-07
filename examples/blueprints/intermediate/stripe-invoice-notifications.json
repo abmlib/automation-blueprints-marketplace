@@ -1,0 +1,63 @@
+{
+  "id": "invoice-notification",
+  "name": "Invoice Created → Slack Notification",
+  "version": "1.2.0",
+  "apps": ["stripe", "slack"],
+  "trigger": {
+    "app": "stripe",
+    "event": "invoice.created"
+  },
+  "steps": [
+    {
+      "id": "format-message",
+      "app": "formatter",
+      "action": "text_format",
+      "inputs": {
+        "template": "New invoice #{{trigger.invoice.number}} for ${{trigger.invoice.amount_due}} created for {{trigger.customer.name}}"
+      },
+      "outputs": ["formatted_text"]
+    },
+    {
+      "id": "send-notification",
+      "app": "slack",
+      "action": "send_message",
+      "inputs": {
+        "channel": "#billing",
+        "text": "{{steps.format-message.formatted_text}}",
+        "attachments": [
+          {
+            "color": "good",
+            "fields": [
+              {
+                "title": "Customer",
+                "value": "{{trigger.customer.name}}",
+                "short": true
+              },
+              {
+                "title": "Amount",
+                "value": "${{trigger.invoice.amount_due}}",
+                "short": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "fixtures": {
+    "trigger": {
+      "invoice": {
+        "number": "INV-001",
+        "amount_due": 1500
+      },
+      "customer": {
+        "name": "Acme Corp"
+      }
+    }
+  },
+  "compatibility": {
+    "zapier": ">=8.0.0",
+    "make": ">=1.5.0",
+    "n8n": ">=0.150.0"
+  }
+}

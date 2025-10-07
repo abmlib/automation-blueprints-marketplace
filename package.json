@@ -1,0 +1,41 @@
+{
+  "name": "automation-blueprints-marketplace",
+  "version": "0.1.0",
+  "description": "Open-source SDK and community blueprints for the Automation Blueprints Marketplace",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abmlib/automation-blueprints-marketplace.git"
+  },
+  "keywords": [
+    "automation",
+    "blueprints",
+    "workflow",
+    "zapier",
+    "make",
+    "n8n",
+    "power-automate",
+    "integration",
+    "low-code"
+  ],
+  "author": "Automation Blueprints Marketplace",
+  "license": "Apache-2.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
