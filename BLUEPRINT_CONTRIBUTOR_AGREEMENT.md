@@ -1,6 +1,6 @@
 # Blueprint Contributor Agreement
 
-**Effective Date:** January 1, 2025  
+**Effective Date:** October 1, 2025  
 **Version:** 1.0
 
 ## Purpose
@@ -126,7 +126,7 @@ While this is a **non-compensated contribution**, you receive:
 If you have questions about this agreement:
 
 - **Documentation**: Read our [Contributing Guide](./.github/CONTRIBUTING.md)
-- **Legal**: Email legal@automation-blueprints.dev
+- **Legal**: Email legal@abmlib.dev
 - **Community**: Visit our [Community page](https://github.com/abmlib/automation-blueprints-marketplace/discussions)
 
 ---
@@ -135,5 +135,6 @@ If you have questions about this agreement:
 
 **By submitting a pull request or contribution, you acknowledge that you have read, understood, and agree to be bound by this Blueprint Contributor Agreement.**
 
-Last Updated: January 7, 2025  
+Last Updated: October 7, 2025  
 Repository: https://github.com/abmlib/automation-blueprints-marketplace
+
