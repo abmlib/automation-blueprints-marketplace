@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Contributing guidelines
 - Apache 2.0 License
 
-## [0.1.0] - 2025-01-07
+## [0.1.0] - 2025-10-07
 
 ### Added
 - Initial release of Automation Blueprints Marketplace open-source tools
@@ -48,3 +48,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]: https://github.com/abmlib/automation-blueprints-marketplace/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/abmlib/automation-blueprints-marketplace/releases/tag/v0.1.0
+
