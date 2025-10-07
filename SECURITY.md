@@ -20,7 +20,7 @@ We take the security of Automation Blueprints Marketplace seriously. If you beli
 
 ### Please DO:
 
-1. **Email** our security team at: **security@automation-blueprints.dev**
+1. **Email** our security team at: **security@abmlib.dev**
 2. **Include** the following information:
    - Type of vulnerability
    - Affected package(s) and version(s)
@@ -90,8 +90,7 @@ Blueprints are JSON configurations and should not execute arbitrary code. Howeve
 Subscribe to security updates:
 
 - Watch this repository for security advisories
-- Follow [@ABMSecurity](https://twitter.com/ABMSecurity) on Twitter
-- Subscribe to our security mailing list: security-announce@automation-blueprints.dev
+- Subscribe to our security mailing list: security-announce@abmlib.dev
 
 ## Vulnerability Disclosure Policy
 
@@ -108,9 +107,10 @@ For enterprise customers requiring compliance validation:
 - GDPR/CCPA data privacy validation available in enterprise tier
 - SOC2-ready audit logs available in enterprise tier
 
-Contact: enterprise@automation-blueprints.dev
+Contact: enterprise@abmlib.dev
 
 ---
 
-**Last Updated:** January 7, 2025  
+**Last Updated:** October 7, 2025  
 **Version:** 1.0
+
