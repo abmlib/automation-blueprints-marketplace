@@ -1,0 +1,44 @@
+name: Feature Request
+description: Suggest a feature or enhancement for the SDK packages
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: package
+    attributes:
+      label: Affected Package
+      options:
+        - "@automation-blueprints/dsl"
+        - "@automation-blueprints/adapters"
+        - Both
+        - New package
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature Description
+      description: A clear description of the feature or enhancement you would like.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Describe the problem this feature would solve or the workflow it would enable.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: If you have a specific solution in mind, describe it here.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any alternative solutions or workarounds you have considered.

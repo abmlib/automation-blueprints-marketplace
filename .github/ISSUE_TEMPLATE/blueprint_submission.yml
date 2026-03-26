@@ -1,0 +1,60 @@
+name: Blueprint Submission
+description: Submit a new automation blueprint to the community library
+labels: ["blueprint"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Blueprint Name
+      placeholder: "e.g. Stripe Invoice to Slack Notification"
+    validations:
+      required: true
+
+  - type: input
+    id: apps
+    attributes:
+      label: Apps Used
+      description: Comma-separated list of apps in this blueprint.
+      placeholder: "e.g. stripe, slack"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Complexity Level
+      options:
+        - Basic (single step)
+        - Intermediate (multi-step with transforms)
+        - Advanced (conditional logic, orchestration)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What does this blueprint automate? When would someone use it?
+    validations:
+      required: true
+
+  - type: textarea
+    id: dsl-json
+    attributes:
+      label: Blueprint DSL (JSON)
+      description: Paste your blueprint JSON here. Must pass `validateDsl()`.
+      render: json
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Submission Checklist
+      options:
+        - label: Blueprint passes validation via `validateDsl()`
+          required: true
+        - label: No hardcoded API keys, secrets, or PII
+          required: true
+        - label: I have read and agree to the [Blueprint Contributor Agreement](https://github.com/abmlib/automation-blueprints-marketplace/blob/main/BLUEPRINT_CONTRIBUTOR_AGREEMENT.md)
+          required: true

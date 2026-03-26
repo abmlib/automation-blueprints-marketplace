@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Platform Support
+    url: https://abmlib.dev/help-center
+    about: For issues with the abmlib.dev marketplace platform (not the open-source SDK), visit the Help Center.
+  - name: Community Discussions
+    url: https://github.com/abmlib/automation-blueprints-marketplace/discussions
+    about: Ask questions, share ideas, and connect with the community.
+  - name: Security Vulnerability
+    url: https://github.com/abmlib/automation-blueprints-marketplace/blob/main/SECURITY.md
+    about: For security vulnerabilities, follow the responsible disclosure process in SECURITY.md.
