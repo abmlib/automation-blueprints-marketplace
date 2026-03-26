@@ -11,5 +11,5 @@
     "target": "ES2020"
   },
   "include": ["*.ts"],
-  "exclude": ["dist", "__tests__"]
+  "exclude": ["dist", "__tests__", "jest.config.ts"]
 }
