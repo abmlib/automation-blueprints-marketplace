@@ -111,6 +111,6 @@ Contact: enterprise@abmlib.dev
 
 ---
 
-**Last Updated:** October 7, 2025  
-**Version:** 1.0
+**Last Updated:** March 26, 2026  
+**Version:** 1.1
 

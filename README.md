@@ -1,105 +1,106 @@
-# Automation Blueprints Marketplace - Open Source Tools
+# Automation Blueprints Marketplace — Open Source SDK
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![npm version](https://badge.fury.io/js/%40automation-blueprints%2Fdsl.svg)](https://www.npmjs.com/package/@automation-blueprints/dsl)
+[![CI](https://github.com/abmlib/automation-blueprints-marketplace/actions/workflows/ci.yml/badge.svg)](https://github.com/abmlib/automation-blueprints-marketplace/actions/workflows/ci.yml)
 
-Open-source SDK and community blueprints for the [Automation Blueprints Marketplace](https://abmlib.dev).
+Open-source SDK packages and community blueprint examples for the [Automation Blueprints Marketplace](https://abmlib.dev).
 
-## 🎯 What's This Repository?
+## What Is This Repository?
 
-This is the **open-source foundation** of the Automation Blueprints ecosystem:
+This is the **open-source community hub** of the Automation Blueprints ecosystem. It contains:
 
-- **Free Tools**: Validate and export blueprints locally
-- **Community Library**: Browse 100+ automation templates
-- **Platform Agnostic**: Export to Zapier, Make, n8n, Power Automate
+- **`@automation-blueprints/dsl`** — JSON Schema validator for automation blueprint definitions
+- **`@automation-blueprints/adapters`** — Platform export adapters (Zapier, Make, n8n, Power Automate)
+- **Blueprint examples** — Ready-to-use automation templates at varying complexity levels
+- **DSL documentation** — Schema specification, versioning policy, migration guides
 
-The **full marketplace platform** at [https://abmlib.dev] offers:
-- 🏢 Enterprise subscriptions (private catalogs, governance, SSO)
-- 📊 Analytics & trend reports
-- ✅ Advanced compliance validation
-- 🚀 Priority support & SLAs
+The full marketplace platform at [abmlib.dev](https://abmlib.dev) provides browsing, publishing, sandbox testing, and direct deployment of blueprints.
 
-## 🚀 Quick Start
+## Quick Start
 
-### Install SDKs
-\`\`\`bash
+### Install
+
+```bash
 npm install @automation-blueprints/dsl @automation-blueprints/adapters
-\`\`\`
+```
 
 ### Validate a Blueprint
-\`\`\`typescript
+
+```typescript
 import { validateDsl } from '@automation-blueprints/dsl';
 
 const result = validateDsl(myBlueprint);
 if (!result.ok) {
   console.error(result.errors);
 }
-\`\`\`
+```
 
-### Export to Platform
-\`\`\`typescript
+### Export to a Platform
+
+```typescript
 import { AdapterRegistry } from '@automation-blueprints/adapters';
 
 const adapter = AdapterRegistry.get('zapier');
-const config = adapter.toTargetFormat(myBlueprint);
-\`\`\`
+const output = adapter?.toTargetFormat(myBlueprint);
+```
 
-## 🤝 Contributing Blueprints
+See the [SDK usage examples](./examples/sdk-usage/) for complete working code.
 
-We welcome community contributions! 
+## Packages
 
-**Before contributing:**
-1. Read [Blueprint Contributor Agreement](./BLUEPRINT_CONTRIBUTOR_AGREEMENT.md)
-2. Review [Contributing Guidelines](./.github/CONTRIBUTING.md)
-3. Check [Quality Standards](./docs/contributing/quality-standards.md)
+| Package | Description |
+|---------|-------------|
+| [@automation-blueprints/dsl](./packages/dsl) | Blueprint validation & JSON Schema (Draft-07) |
+| [@automation-blueprints/adapters](./packages/adapters) | Export adapters for Zapier, Make, n8n, Power Automate |
 
-**Benefits of contributing:**
-- 🌟 Build your portfolio
-- 🏆 Community recognition
-- 📈 Help thousands of businesses automate
+## Blueprint Examples
 
-## 📦 Packages
+| Level | Directory | Description |
+|-------|-----------|-------------|
+| Basic | [examples/blueprints/basic](./examples/blueprints/basic) | Single-step workflows for beginners |
+| Intermediate | [examples/blueprints/intermediate](./examples/blueprints/intermediate) | Multi-step workflows with transforms |
+| Advanced | [examples/blueprints/advanced](./examples/blueprints/advanced) | Complex conditional logic and orchestration |
+| Platform Exports | [examples/blueprints/exports](./examples/blueprints/exports) | Same blueprint exported to Zapier, Make, n8n |
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| [@automation-blueprints/dsl](./packages/dsl) | ![npm](https://img.shields.io/npm/v/@automation-blueprints/dsl) | Blueprint validation & schema |
-| [@automation-blueprints/adapters](./packages/adapters) | ![npm](https://img.shields.io/npm/v/@automation-blueprints/adapters) | Platform export adapters |
+## Documentation
 
-## 🌐 Marketplace Platform
+- [DSL Schema Reference](./packages/dsl/README.md)
+- [Adapters Reference](./packages/adapters/README.md)
+- [Breaking Change Policy](./docs/dsl/breaking-change-policy.md)
+- [Migration Guide](./docs/dsl/migration-guide.md)
+- [Platform API Documentation](https://abmlib.dev/docs/schema)
 
-Visit [https://abmlib.dev] for:
+## Contributing
 
-**Free Tier:**
-- Browse all community blueprints
-- 10 exports/month
-- Basic validation
-- Community support
+We welcome contributions of blueprints, bug fixes, and documentation improvements.
 
-**Enterprise:**
-- Private blueprint catalogs
-- Unlimited exports
-- Advanced compliance validation (HIPAA, GDPR, SOC2)
-- Usage analytics & insights
-- Priority support with SLA
-- SSO & team management
+1. Read the [Contributing Guide](./.github/CONTRIBUTING.md)
+2. Review the [Blueprint Contributor Agreement](./BLUEPRINT_CONTRIBUTOR_AGREEMENT.md)
+3. Review the [Code of Conduct](./CODE_OF_CONDUCT.md)
 
-[View Pricing](https://your-domain.com/pricing)
+## Development
 
-## 📖 Documentation
+```bash
+git clone https://github.com/abmlib/automation-blueprints-marketplace.git
+cd automation-blueprints-marketplace
+npm install
+npm test
+```
 
-- [DSL Schema](https://your-domain.com/docs/schema)
-- [SDK Reference](https://your-domain.com/docs/sdk)
-- [API Documentation](./docs/api/openapi.yaml)
-- [Platform Adapters](./docs/adapters/)
+### Prerequisites
 
-## 📄 License
+- Node.js >= 18.0.0
+- npm >= 9.0.0
 
-**SDK & Tools**: Apache License 2.0  
+## License
+
+**SDK & Tools**: [Apache License 2.0](./LICENSE)
 **Blueprints**: See [Blueprint Contributor Agreement](./BLUEPRINT_CONTRIBUTOR_AGREEMENT.md)
 
-## 🔗 Links
+## Links
 
-- [Marketplace](https://abmlib.dev)
+- [Marketplace Platform](https://abmlib.dev)
 - [Documentation](https://abmlib.dev/docs/schema)
-- [Community](https://abmlib.dev/community)
-- [Enterprise](https://abmlib.dev/enterprise)
+- [Discussions](https://github.com/abmlib/automation-blueprints-marketplace/discussions)
+- [Report a Bug](https://github.com/abmlib/automation-blueprints-marketplace/issues/new?template=bug_report.yml)
+- [Request a Feature](https://github.com/abmlib/automation-blueprints-marketplace/issues/new?template=feature_request.yml)

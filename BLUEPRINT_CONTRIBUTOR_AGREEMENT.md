@@ -1,7 +1,8 @@
 # Blueprint Contributor Agreement
 
 **Effective Date:** October 1, 2025  
-**Version:** 1.0
+**Last Updated:** March 26, 2026  
+**Version:** 1.1
 
 ## Purpose
 
@@ -100,7 +101,7 @@ ABM may update this agreement with:
 
 ### 11. Governing Law
 
-This agreement is governed by the laws of **[Your Jurisdiction]**, without regard to conflict of law principles.
+This agreement is governed by the laws of **Estonia**, without regard to conflict of law principles.
 
 ### 12. Severability
 
@@ -135,6 +136,6 @@ If you have questions about this agreement:
 
 **By submitting a pull request or contribution, you acknowledge that you have read, understood, and agree to be bound by this Blueprint Contributor Agreement.**
 
-Last Updated: October 7, 2025  
+Last Updated: March 26, 2026  
 Repository: https://github.com/abmlib/automation-blueprints-marketplace
 

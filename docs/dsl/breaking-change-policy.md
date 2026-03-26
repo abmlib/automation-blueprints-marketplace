@@ -1,7 +1,7 @@
 # Breaking Change Policy
 
 **Document Status:** `[ACTIVE]`  
-**Last Updated:** 2025-10-07  
+**Last Updated:** 2026-03-26  
 **Applies to:** DSL Schema, Adapters Package, API
 
 ---
