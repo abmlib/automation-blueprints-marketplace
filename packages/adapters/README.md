@@ -12,19 +12,27 @@ npm install @automation-blueprints/adapters
 
 This package provides adapters that convert standardized automation blueprint DSL into platform-specific formats for Zapier, Make (Integromat), n8n, and Microsoft Power Automate.
 
+All adapters share a common `Adapter` interface with typed DSL inputs and platform-specific output types. Each adapter maps the full DSL surface including triggers, steps, transforms, conditions, retry policies, filters, outputs, and OAuth scopes to the target platform's native representation.
+
 ## Usage
 
 ### Quick Start
 
 ```typescript
-import { AdapterRegistry } from '@automation-blueprints/adapters';
+import {
+  AdapterRegistry,
+  BlueprintDsl,
+  ZapierPlatformOutput,
+} from '@automation-blueprints/adapters';
 
-const blueprint = {
+const blueprint: BlueprintDsl = {
+  id: 'crm-slack-notify',
   name: 'CRM to Slack Notification',
   version: '1.0.0',
+  apps: ['salesforce', 'slack'],
   trigger: {
     app: 'salesforce',
-    event: 'record_updated'
+    event: 'record_updated',
   },
   steps: [
     {
@@ -33,91 +41,73 @@ const blueprint = {
       action: 'post_message',
       inputs: {
         channel: '#sales',
-        text: 'CRM update detected'
-      }
-    }
-  ]
+        text: 'CRM update detected',
+      },
+    },
+  ],
 };
 
-// Get the Zapier adapter
-const zapierAdapter = AdapterRegistry.get('zapier');
-if (zapierAdapter) {
-  const zapierFormat = zapierAdapter.toTargetFormat(blueprint);
-  console.log(JSON.stringify(zapierFormat, null, 2));
+const adapter = AdapterRegistry.get('zapier');
+if (adapter) {
+  const output = adapter.toTargetFormat(blueprint) as ZapierPlatformOutput;
+  console.log(JSON.stringify(output, null, 2));
 }
 
 // List all available adapters
-const availableRuntimes = AdapterRegistry.list();
-console.log('Supported platforms:', availableRuntimes);
-// Output: ['zapier', 'make', 'n8n', 'power-automate']
+console.log(AdapterRegistry.list());
+// ['zapier', 'make', 'n8n', 'power-automate']
 ```
 
-### Converting to n8n Format
+### Pre-Conversion Validation
 
 ```typescript
-import { AdapterRegistry } from '@automation-blueprints/adapters';
-
-const adapter = AdapterRegistry.get('n8n');
-const n8nWorkflow = adapter?.toTargetFormat({
-  name: 'My Workflow',
-  trigger: { app: 'webhook', event: 'incoming' },
-  steps: [
-    {
-      id: 'process-data',
-      app: 'set',
-      action: 'set_value',
-      inputs: { value: 'processed' }
-    }
-  ]
-});
-
-// Import into n8n using their API or UI
-```
-
-### Converting to Make (Integromat) Format
-
-```typescript
-import { AdapterRegistry } from '@automation-blueprints/adapters';
-
 const adapter = AdapterRegistry.get('make');
-const makeScenario = adapter?.toTargetFormat({
-  name: 'Data Sync Scenario',
-  trigger: { app: 'webhook', event: 'data_received' },
-  steps: [
-    {
-      id: 'transform',
-      app: 'tools',
-      action: 'set-variable',
-      inputs: { variable: 'result' },
-      transforms: [
-        { field: 'email', operation: 'lowercase' }
-      ]
-    }
-  ]
-});
+
+// Check if the adapter can handle this blueprint
+if (adapter?.canHandle?.(blueprint)) {
+  const output = adapter.toTargetFormat(blueprint);
+}
+
+// Get warnings about unsupported DSL features
+const warnings = adapter?.detectUnsupportedFeatures?.(blueprint);
+if (warnings?.length) {
+  console.warn('Unsupported features:', warnings);
+}
 ```
 
-### Converting to Power Automate Format
+### Advanced DSL Features
 
 ```typescript
-import { AdapterRegistry } from '@automation-blueprints/adapters';
+import { BlueprintDsl } from '@automation-blueprints/adapters';
 
-const adapter = AdapterRegistry.get('power-automate');
-const powerAutomateFlow = adapter?.toTargetFormat({
-  name: 'Automated Flow',
-  trigger: { app: 'http', event: 'manual' },
+const blueprint: BlueprintDsl = {
+  id: 'advanced-flow',
+  name: 'Advanced Flow',
+  version: '1.0.0',
+  apps: ['hubspot', 'slack', 'pandadoc'],
+  trigger: {
+    app: 'hubspot',
+    event: 'deal_closed',
+    filters: [
+      { field: 'amount', operator: 'gte', value: 1000 },
+    ],
+  },
   steps: [
     {
-      id: 'compose-email',
-      app: 'office365',
-      action: 'send_email',
-      inputs: {
-        to: 'team@company.com',
-        subject: 'Notification'
-      }
-    }
-  ]
-});
+      id: 'notify',
+      app: 'slack',
+      action: 'post_message',
+      condition: 'amount > 5000',
+      inputs: { channel: '#big-deals' },
+      outputs: ['messageId', 'timestamp'],
+      transforms: [
+        { field: 'text', operation: 'template', value: 'Deal closed: {{name}}' },
+      ],
+    },
+  ],
+  scopes: ['hubspot.deals.read', 'slack.chat:write'],
+  retry: { attempts: 3, delayMs: 5000 },
+};
 ```
 
 ## API Reference
@@ -132,61 +122,63 @@ Central registry for managing platform adapters.
 
 Registers a new adapter. Typically used internally by built-in adapters.
 
-**Parameters:**
-- `adapter` - An object implementing the `Adapter` interface
-
 ##### `AdapterRegistry.get(runtime: string): Adapter | undefined`
 
 Retrieves an adapter by runtime identifier.
 
 **Parameters:**
-- `runtime` - Platform identifier ('zapier', 'make', 'n8n', 'power-automate')
-
-**Returns:** The adapter instance, or `undefined` if not found
+- `runtime` - Platform identifier (`'zapier'`, `'make'`, `'n8n'`, `'power-automate'`)
 
 ##### `AdapterRegistry.list(): string[]`
 
 Lists all registered adapter runtime identifiers.
 
-**Returns:** Array of runtime names
-
 ---
 
-### `Adapter` Interface
+### `Adapter<TOutput>` Interface
 
 All adapters implement this interface.
 
 ```typescript
-interface Adapter {
+interface Adapter<TOutput = unknown> {
   runtime: string;
-  toTargetFormat(dsl: unknown): unknown;
+  toTargetFormat(dsl: unknown): TOutput;
   canHandle?(dsl: unknown): boolean;
+  detectUnsupportedFeatures?(dsl: unknown): string[];
 }
 ```
 
-#### Properties
+| Method | Required | Description |
+|--------|----------|-------------|
+| `toTargetFormat(dsl)` | Yes | Converts blueprint DSL to the target platform's native format |
+| `canHandle?(dsl)` | No | Validates whether the adapter can process the given DSL |
+| `detectUnsupportedFeatures?(dsl)` | No | Returns human-readable warnings for DSL features the adapter cannot translate |
 
-- **`runtime`** (string): Platform identifier (e.g., "zapier", "n8n")
+---
 
-#### Methods
+### DSL Input Types
 
-##### `toTargetFormat(dsl: unknown): unknown`
+The package exports typed interfaces for the blueprint DSL:
 
-Converts blueprint DSL to the target platform's format.
+| Type | Description |
+|------|-------------|
+| `BlueprintDsl` | Root blueprint object with trigger, steps, scopes, retry, policies |
+| `BlueprintDslTrigger` | Trigger definition with app, event, and optional filters |
+| `BlueprintDslStep` | Step with id, app, action, condition, inputs, outputs, transforms |
+| `BlueprintDslFilter` | Trigger filter condition (field, operator, value) |
+| `BlueprintDslTransform` | Field-level transform (field, operation, value) |
+| `BlueprintDslRetry` | Retry configuration (attempts, delayMs) |
 
-**Parameters:**
-- `dsl` - Blueprint object in DSL format
+### Platform Output Types
 
-**Returns:** Platform-specific format (object structure varies by platform)
+Each adapter produces a typed output:
 
-##### `canHandle?(dsl: unknown): boolean` *(optional)*
-
-Checks if the adapter can process the given DSL (e.g., runtime constraints).
-
-**Parameters:**
-- `dsl` - Blueprint object to check
-
-**Returns:** `true` if the adapter supports this blueprint, `false` otherwise
+| Type | Adapter | Description |
+|------|---------|-------------|
+| `ZapierPlatformOutput` | Zapier | Developer Platform app definition with triggers, searches, creates |
+| `MakeScenarioOutput` | Make | Scenario blueprint with flow array and module definitions |
+| `N8nWorkflowOutput` | n8n | Workflow JSON with nodes and connections |
+| `PowerAutomateWorkflowOutput` | Power Automate | Azure Logic Apps workflow definition |
 
 ## Supported Platforms
 
@@ -194,106 +186,95 @@ Checks if the adapter can process the given DSL (e.g., runtime constraints).
 
 **Runtime ID:** `zapier`
 
-**Output Format:** Zapier platform JSON with `triggers`, `searches`, and `creates` objects.
+Exports to the Zapier Developer Platform app definition format.
 
-**Example Output:**
-```json
-{
-  "name": "automation-blueprint",
-  "version": "0.1.0",
-  "triggers": {
-    "trigger_event": {
-      "operation": {
-        "perform": {
-          "url": "https://example.com/trigger/trigger_event",
-          "method": "POST"
-        }
-      }
-    }
-  },
-  "searches": {},
-  "creates": {}
-}
-```
+**DSL mapping:**
+- Steps map to `creates` (keyed by step ID) with `inputFields`, `outputFields`, and `perform` URL
+- Trigger maps to `triggers` entry with app-specific `perform` endpoint
+- `scopes[]` mapped to `authentication.oauth2Config.scope`
+- `retry` mapped to `perform.retry`
+- `step.transforms` mapped to `outputFields`
 
 ### Make (Integromat)
 
 **Runtime ID:** `make`
 
-**Output Format:** Make scenario JSON with `flow` array and module definitions.
+Exports to the Make scenario blueprint format.
 
-**Features:**
-- Visual flow positioning
-- Module parameter mapping
-- Transform operations
+**DSL mapping:**
+- Steps map to flow modules with `mapper` (from transforms) and `parameters` (from inputs)
+- `trigger.filters[]` mapped to Make `filter` modules with native `conditions` array
+- `step.condition` parsed into `router` module with conditional `routes`
+- `step.outputs[]` mapped to `metadata.expect` entries
+- `retry` mapped to `onerror` retry modules
 
 ### n8n
 
 **Runtime ID:** `n8n`
 
-**Output Format:** n8n workflow JSON with `nodes` and `connections`.
+Exports to the n8n workflow JSON format.
 
-**Features:**
-- Node positioning
-- Webhook triggers
-- Expression-based transforms
-- Connection management
+**DSL mapping:**
+- Trigger type dynamically resolved from `trigger.app` (not hardcoded to webhook)
+- Steps map to nodes with full connection wiring between them
+- `step.condition` parsed into `n8n-nodes-base.if` nodes with branching connections
+- `retry` mapped to `retryOnFail`, `maxTries`, `waitBetweenTries` on each node
+- Automatic node positioning in the visual editor
 
 ### Microsoft Power Automate
 
 **Runtime ID:** `power-automate`
 
-**Output Format:** Azure Logic Apps workflow definition schema.
+Exports to the Azure Logic Apps workflow definition schema.
 
-**Features:**
-- Trigger and action mapping
-- RunAfter dependencies
-- Compose actions for transforms
+**DSL mapping:**
+- Steps map to actions with `runAfter` dependency chaining
+- `trigger.filters[]` mapped to trigger `conditions` expressions
+- `step.condition` parsed into `If` actions with `actions` and `else.actions` branches
+- `step.outputs[]` mapped to action output schemas
+- `retry` mapped to `retryPolicy` with count and interval
+- Output conforms to `$schema: https://schema.management.azure.com/...`
 
 ## Creating Custom Adapters
-
-You can extend the system with custom adapters:
 
 ```typescript
 import { Adapter, AdapterRegistry } from '@automation-blueprints/adapters';
 
-class MyPlatformAdapter implements Adapter {
+interface MyPlatformOutput {
+  workflowName: string;
+  tasks: Array<{ name: string; config: Record<string, unknown> }>;
+}
+
+class MyPlatformAdapter implements Adapter<MyPlatformOutput> {
   runtime = 'my-platform';
 
-  toTargetFormat(dsl: any) {
+  toTargetFormat(dsl: any): MyPlatformOutput {
     return {
-      platformSpecificField: dsl.name,
-      // ... your conversion logic
+      workflowName: dsl.name,
+      tasks: (dsl.steps ?? []).map((s: any) => ({
+        name: s.id,
+        config: s.inputs ?? {},
+      })),
     };
   }
 
   canHandle(dsl: any): boolean {
-    // Optional: add constraints
-    return true;
+    return Array.isArray(dsl.steps) && dsl.steps.length > 0;
+  }
+
+  detectUnsupportedFeatures(dsl: any): string[] {
+    const warnings: string[] = [];
+    if (dsl.retry) warnings.push('Retry config is not supported by my-platform');
+    return warnings;
   }
 }
 
-// Register your adapter
 AdapterRegistry.register(new MyPlatformAdapter());
-
-// Use it
-const adapter = AdapterRegistry.get('my-platform');
-```
-
-## TypeScript Support
-
-This package is written in TypeScript and includes full type definitions.
-
-```typescript
-import { Adapter, AdapterRegistry } from '@automation-blueprints/adapters';
-
-const adapter: Adapter | undefined = AdapterRegistry.get('zapier');
-const runtimes: string[] = AdapterRegistry.list();
 ```
 
 ## Testing
 
-The package includes comprehensive tests for all adapters. Run tests with:
+Run the full test suite (133+ test cases across all four adapters):
 
 ```bash
 npm test
@@ -301,7 +282,7 @@ npm test
 
 ## Dependencies
 
-This package has no runtime dependencies, making it lightweight and easy to integrate.
+This package has no runtime dependencies.
 
 ## License
 
@@ -310,4 +291,3 @@ See repository root for license information.
 ## Related Packages
 
 - [`@automation-blueprints/dsl`](../dsl/README.md) - DSL schema and validation
-

@@ -1,16 +1,122 @@
 {
-  "name": "invoice-notification",
+  "name": "Invoice Created → Slack Notification",
   "version": "1.2.0",
   "triggers": {
     "invoice.created": {
+      "key": "invoice.created",
+      "noun": "stripe",
+      "display": {
+        "label": "stripe — invoice.created",
+        "description": "Triggers when invoice.created occurs in stripe"
+      },
       "operation": {
+        "inputFields": [],
         "perform": {
-          "url": "https://example.com/trigger/invoice.created",
-          "method": "POST"
+          "url": "{{bundle.authData.baseUrl}}/stripe/invoice.created",
+          "method": "GET"
         }
       }
     }
   },
   "searches": {},
-  "creates": {}
+  "creates": {
+    "format-message": {
+      "key": "format-message",
+      "noun": "formatter",
+      "display": {
+        "label": "formatter — text_format",
+        "description": "Perform text_format on formatter"
+      },
+      "operation": {
+        "inputFields": [
+          {
+            "key": "template",
+            "type": "string",
+            "default": "New invoice #{{trigger.invoice.number}} for ${{trigger.invoice.amount_due}} created for {{trigger.customer.name}}"
+          }
+        ],
+        "perform": {
+          "url": "{{bundle.authData.baseUrl}}/formatter/text_format",
+          "method": "POST",
+          "body": {
+            "template": "New invoice #{{trigger.invoice.number}} for ${{trigger.invoice.amount_due}} created for {{trigger.customer.name}}"
+          }
+        },
+        "outputFields": [
+          {
+            "key": "formatted_text",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "send-notification": {
+      "key": "send-notification",
+      "noun": "slack",
+      "display": {
+        "label": "slack — send_message",
+        "description": "Perform send_message on slack"
+      },
+      "operation": {
+        "inputFields": [
+          {
+            "key": "channel",
+            "type": "string",
+            "default": "#billing"
+          },
+          {
+            "key": "text",
+            "type": "string",
+            "default": "{{steps.format-message.formatted_text}}"
+          },
+          {
+            "key": "attachments",
+            "type": "text",
+            "default": [
+              {
+                "color": "good",
+                "fields": [
+                  {
+                    "title": "Customer",
+                    "value": "{{trigger.customer.name}}",
+                    "short": true
+                  },
+                  {
+                    "title": "Amount",
+                    "value": "${{trigger.invoice.amount_due}}",
+                    "short": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "perform": {
+          "url": "{{bundle.authData.baseUrl}}/slack/send_message",
+          "method": "POST",
+          "body": {
+            "channel": "#billing",
+            "text": "{{steps.format-message.formatted_text}}",
+            "attachments": [
+              {
+                "color": "good",
+                "fields": [
+                  {
+                    "title": "Customer",
+                    "value": "{{trigger.customer.name}}",
+                    "short": true
+                  },
+                  {
+                    "title": "Amount",
+                    "value": "${{trigger.invoice.amount_due}}",
+                    "short": true
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
 }

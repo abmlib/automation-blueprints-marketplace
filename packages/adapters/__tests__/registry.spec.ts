@@ -4,7 +4,7 @@ describe("AdapterRegistry", () => {
   it("returns zapier adapter", () => {
     const adapter = AdapterRegistry.get("zapier");
     expect(adapter?.runtime).toBe("zapier");
-    const sample = adapter?.toTargetFormat({ name: "BP", version: "0.1.0", trigger: { event: "new" } });
+    const sample = adapter?.toTargetFormat({ name: "BP", version: "0.1.0", trigger: { app: "webhook", event: "new" }, steps: [] });
     expect(sample).toHaveProperty("triggers");
   });
 
@@ -40,6 +40,7 @@ describe("AdapterRegistry", () => {
     const sample = adapter?.toTargetFormat({
       name: "BP",
       trigger: { app: "http", event: "request" },
+      steps: [],
     });
     expect(sample).toHaveProperty("$schema");
     expect(sample).toHaveProperty("triggers");

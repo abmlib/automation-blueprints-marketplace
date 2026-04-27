@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "triggers": {
+    "invoice.created": {
+      "type": "Request",
+      "kind": "Http",
+      "inputs": {
+        "schema": {},
+        "method": "POST"
+      }
+    }
+  },
+  "actions": {
+    "format-message": {
+      "type": "ApiConnection",
+      "inputs": {
+        "template": "New invoice #{{trigger.invoice.number}} for ${{trigger.invoice.amount_due}} created for {{trigger.customer.name}}"
+      },
+      "runAfter": {}
+    },
+    "send-notification": {
+      "type": "ApiConnection",
+      "inputs": {
+        "channel": "#billing",
+        "text": "{{steps.format-message.formatted_text}}",
+        "attachments": [
+          {
+            "color": "good",
+            "fields": [
+              {
+                "title": "Customer",
+                "value": "{{trigger.customer.name}}",
+                "short": true
+              },
+              {
+                "title": "Amount",
+                "value": "${{trigger.invoice.amount_due}}",
+                "short": true
+              }
+            ]
+          }
+        ]
+      },
+      "runAfter": {
+        "format-message": [
+          "Succeeded"
+        ]
+      }
+    }
+  },
+  "outputs": {}
+}

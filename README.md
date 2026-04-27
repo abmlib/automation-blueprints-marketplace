@@ -38,10 +38,10 @@ if (!result.ok) {
 ### Export to a Platform
 
 ```typescript
-import { AdapterRegistry } from '@automation-blueprints/adapters';
+import { AdapterRegistry, ZapierPlatformOutput } from '@automation-blueprints/adapters';
 
 const adapter = AdapterRegistry.get('zapier');
-const output = adapter?.toTargetFormat(myBlueprint);
+const output = adapter?.toTargetFormat(myBlueprint) as ZapierPlatformOutput;
 ```
 
 See the [SDK usage examples](./examples/sdk-usage/) for complete working code.
@@ -60,7 +60,7 @@ See the [SDK usage examples](./examples/sdk-usage/) for complete working code.
 | Basic | [examples/blueprints/basic](./examples/blueprints/basic) | Single-step workflows for beginners |
 | Intermediate | [examples/blueprints/intermediate](./examples/blueprints/intermediate) | Multi-step workflows with transforms |
 | Advanced | [examples/blueprints/advanced](./examples/blueprints/advanced) | Complex conditional logic and orchestration |
-| Platform Exports | [examples/blueprints/exports](./examples/blueprints/exports) | Same blueprint exported to Zapier, Make, n8n |
+| Platform Exports | [examples/blueprints/exports](./examples/blueprints/exports) | Same blueprint exported to Zapier, Make, n8n, Power Automate |
 
 ## Documentation
 

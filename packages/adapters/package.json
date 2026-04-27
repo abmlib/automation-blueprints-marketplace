@@ -1,6 +1,6 @@
 {
   "name": "@automation-blueprints/adapters",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Runtime adapters for exporting automation blueprints",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
