@@ -1,0 +1,75 @@
+id: webhook-to-action
+name: "Webhook to Action"
+version: "1.0.0"
+apps:
+  - webhook
+  - formatter
+  - slack
+scopes:
+  - chat:write
+trigger:
+  app: webhook
+  event: receive
+  filters:
+    - field: headers.content-type
+      operator: equals
+      value: application/json
+steps:
+  - id: format-payload
+    app: formatter
+    action: text_format
+    inputs:
+      template: "New event from {{trigger.body.source}}: {{trigger.body.message}}"
+    outputs:
+      - formatted_text
+    transforms:
+      - field: formatted_text
+        operation: trim
+  - id: notify-slack
+    app: slack
+    action: send_message
+    inputs:
+      channel: "#notifications"
+      text: "{{steps.format-payload.outputs.formatted_text}}"
+    outputs:
+      - message_id
+retry:
+  attempts: 3
+  delayMs: 2000
+fixtures:
+  trigger_payload:
+    body:
+      source: "external-service"
+      message: "Order #1042 has been placed"
+    headers:
+      content-type: application/json
+  format_payload_output:
+    formatted_text: "New event from external-service: Order #1042 has been placed"
+  notify_slack_output:
+    message_id: "msg-001"
+tests:
+  - name: formats and sends webhook payload to Slack
+    input:
+      body:
+        source: "external-service"
+        message: "Order #1042 has been placed"
+      headers:
+        content-type: application/json
+    expectations:
+      - step: format-payload
+        output:
+          formatted_text: "New event from external-service: Order #1042 has been placed"
+      - step: notify-slack
+        output:
+          message_id: "msg-001"
+  - name: handles empty message field gracefully
+    input:
+      body:
+        source: "external-service"
+        message: ""
+      headers:
+        content-type: application/json
+    expectations:
+      - step: format-payload
+        output:
+          formatted_text: "New event from external-service: "

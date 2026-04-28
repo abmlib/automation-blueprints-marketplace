@@ -1,0 +1,28 @@
+{
+  "name": "@automation-blueprints/cli",
+  "version": "0.2.0",
+  "description": "CLI tool for validating and publishing automation blueprints to ABMLib",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "abmlib": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "jest --config jest.config.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@automation-blueprints/dsl": "*",
+    "commander": "^14.0.3",
+    "yaml": "^2.8.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.0",
+    "typescript": "^5.5.3"
+  }
+}

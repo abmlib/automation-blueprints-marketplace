@@ -9,8 +9,9 @@ Open-source SDK packages and community blueprint examples for the [Automation Bl
 
 This is the **open-source community hub** of the Automation Blueprints ecosystem. It contains:
 
-- **`@automation-blueprints/dsl`** — JSON Schema validator for automation blueprint definitions
+- **`@automation-blueprints/dsl`** — JSON Schema validator for automation blueprint definitions, plus **YAML starter templates** under `templates/` (v0.2.0+) aligned with [**Start from template**](https://abmlib.dev) on the marketplace
 - **`@automation-blueprints/adapters`** — Platform export adapters (Zapier, Make, n8n, Power Automate)
+- **`@automation-blueprints/cli`** — `abmlib` CLI: validate DSL locally and publish with an API token (`login`, `validate`, `publish`)
 - **Blueprint examples** — Ready-to-use automation templates at varying complexity levels
 - **DSL documentation** — Schema specification, versioning policy, migration guides
 
@@ -21,8 +22,22 @@ The full marketplace platform at [abmlib.dev](https://abmlib.dev) provides brows
 ### Install
 
 ```bash
-npm install @automation-blueprints/dsl @automation-blueprints/adapters
+npm install @automation-blueprints/dsl @automation-blueprints/adapters @automation-blueprints/cli
 ```
+
+### Starter templates (DSL v0.2.0+)
+
+Curated YAML files ship with **`@automation-blueprints/dsl`** in **`templates/`** (`webhook-to-action`, `scheduled-sync`, `event-chain`, `approval-flow`). See [packages/dsl/README.md](./packages/dsl/README.md#starter-templates).
+
+### CLI
+
+```bash
+npx --yes @automation-blueprints/cli validate ./my-blueprint.yaml
+abmlib login   # paste API token
+abmlib publish ./my-blueprint.yaml
+```
+
+See [CLI package readme](./packages/cli/README.md).
 
 ### Validate a Blueprint
 
@@ -50,7 +65,8 @@ See the [SDK usage examples](./examples/sdk-usage/) for complete working code.
 
 | Package | Description |
 |---------|-------------|
-| [@automation-blueprints/dsl](./packages/dsl) | Blueprint validation & JSON Schema (Draft-07) |
+| [@automation-blueprints/dsl](./packages/dsl) | Blueprint validation, JSON Schema (Draft-07), packaged starter templates (`templates/*.yaml`) |
+| [@automation-blueprints/cli](./packages/cli) | **`abmlib`** — validate and publish DSL to the marketplace API |
 | [@automation-blueprints/adapters](./packages/adapters) | Export adapters for Zapier, Make, n8n, Power Automate |
 
 ## Blueprint Examples
@@ -65,6 +81,7 @@ See the [SDK usage examples](./examples/sdk-usage/) for complete working code.
 ## Documentation
 
 - [DSL Schema Reference](./packages/dsl/README.md)
+- [CLI (`abmlib`)](./packages/cli/README.md)
 - [Adapters Reference](./packages/adapters/README.md)
 - [Breaking Change Policy](./docs/dsl/breaking-change-policy.md)
 - [Migration Guide](./docs/dsl/migration-guide.md)

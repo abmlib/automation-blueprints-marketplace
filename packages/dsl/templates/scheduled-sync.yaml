@@ -1,0 +1,104 @@
+id: scheduled-sync
+name: "Scheduled Data Sync"
+version: "1.0.0"
+apps:
+  - http
+  - formatter
+  - hubspot
+scopes:
+  - crm.objects.contacts.read
+  - crm.objects.contacts.write
+trigger:
+  app: http
+  event: get
+  filters:
+    - field: schedule
+      operator: equals
+      value: "*/30 * * * *"
+steps:
+  - id: fetch-records
+    app: http
+    action: get
+    inputs:
+      url: "https://api.example.com/contacts?updated_since={{lastRunTimestamp}}"
+      headers:
+        Authorization: "Bearer {{secrets.SOURCE_API_KEY}}"
+    outputs:
+      - response_body
+      - status_code
+  - id: transform-data
+    app: formatter
+    action: text_format
+    inputs:
+      records: "{{steps.fetch-records.outputs.response_body.data}}"
+    outputs:
+      - transformed_records
+    transforms:
+      - field: email
+        operation: lowercase
+      - field: full_name
+        operation: trim
+  - id: upsert-contacts
+    app: hubspot
+    action: create_contact
+    inputs:
+      properties:
+        email: "{{item.email}}"
+        firstname: "{{item.first_name}}"
+        lastname: "{{item.last_name}}"
+        company: "{{item.company}}"
+    outputs:
+      - contact_id
+      - created
+retry:
+  attempts: 5
+  delayMs: 5000
+fixtures:
+  fetch_response:
+    status_code: 200
+    response_body:
+      data:
+        - email: "JANE.DOE@EXAMPLE.COM"
+          first_name: "Jane"
+          last_name: "Doe"
+          company: "Acme Corp"
+        - email: "john.smith@example.com  "
+          first_name: "John"
+          last_name: "Smith"
+          company: "Globex Inc"
+  transform_output:
+    transformed_records:
+      - email: "jane.doe@example.com"
+        full_name: "Jane Doe"
+        company: "Acme Corp"
+      - email: "john.smith@example.com"
+        full_name: "John Smith"
+        company: "Globex Inc"
+  upsert_output:
+    contact_id: "contact-501"
+    created: true
+tests:
+  - name: fetches records and upserts contacts to HubSpot
+    input:
+      lastRunTimestamp: "2026-04-01T00:00:00Z"
+    expectations:
+      - step: fetch-records
+        output:
+          status_code: 200
+      - step: transform-data
+        output:
+          transformed_records:
+            - email: "jane.doe@example.com"
+              full_name: "Jane Doe"
+      - step: upsert-contacts
+        output:
+          created: true
+  - name: handles empty API response without errors
+    input:
+      lastRunTimestamp: "2026-04-27T00:00:00Z"
+    expectations:
+      - step: fetch-records
+        output:
+          status_code: 200
+          response_body:
+            data: []

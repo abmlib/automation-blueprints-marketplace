@@ -1,0 +1,131 @@
+id: approval-flow
+name: "Approval Flow"
+version: "1.0.0"
+apps:
+  - hubspot
+  - slack
+  - notion
+scopes:
+  - crm.objects.contacts.read
+  - chat:write
+  - pages.write
+trigger:
+  app: hubspot
+  event: deal_created
+  filters:
+    - field: dealstage
+      operator: equals
+      value: qualifiedtobuy
+steps:
+  - id: get-deal-owner
+    app: hubspot
+    action: get_contact
+    inputs:
+      contact_id: "{{trigger.data.owner_id}}"
+    outputs:
+      - owner_email
+      - owner_name
+  - id: request-approval
+    app: slack
+    action: send_message
+    inputs:
+      channel: "#deal-approvals"
+      text: "New deal requires approval: {{trigger.data.deal_name}} (${{trigger.data.amount}}) — Owner: {{steps.get-deal-owner.outputs.owner_name}}"
+    outputs:
+      - message_id
+  - id: approve-deal
+    app: slack
+    action: send_message
+    condition: "trigger.data.amount <= 10000"
+    inputs:
+      channel: "#deal-approvals"
+      text: "Deal {{trigger.data.deal_name}} auto-approved (under threshold). Assigned to {{steps.get-deal-owner.outputs.owner_name}}."
+    outputs:
+      - message_id
+  - id: escalate-deal
+    app: slack
+    action: send_message
+    condition: "trigger.data.amount > 10000"
+    inputs:
+      channel: "#deal-escalations"
+      text: "Deal {{trigger.data.deal_name}} (${{trigger.data.amount}}) requires manual review. Owner: {{steps.get-deal-owner.outputs.owner_name}} ({{steps.get-deal-owner.outputs.owner_email}})."
+    outputs:
+      - message_id
+  - id: log-decision
+    app: notion
+    action: create_page
+    inputs:
+      database_id: "{{secrets.NOTION_APPROVALS_DB}}"
+      properties:
+        title: "{{trigger.data.deal_name}}"
+        amount: "{{trigger.data.amount}}"
+        owner: "{{steps.get-deal-owner.outputs.owner_name}}"
+        status: "{{trigger.data.amount <= 10000 ? 'Auto-Approved' : 'Pending Review'}}"
+    outputs:
+      - page_id
+retry:
+  attempts: 2
+  delayMs: 1000
+fixtures:
+  trigger_deal_small:
+    data:
+      deal_name: "Acme Corp Starter Plan"
+      amount: 5000
+      owner_id: "owner-101"
+      dealstage: qualifiedtobuy
+  trigger_deal_large:
+    data:
+      deal_name: "Globex Enterprise License"
+      amount: 75000
+      owner_id: "owner-202"
+      dealstage: qualifiedtobuy
+  get_deal_owner_output:
+    owner_email: "sales.rep@company.com"
+    owner_name: "Alex Rivera"
+  approval_output:
+    message_id: "msg-approve-001"
+  escalation_output:
+    message_id: "msg-escalate-001"
+  log_output:
+    page_id: "page-decision-001"
+tests:
+  - name: auto-approves deal under threshold
+    input:
+      data:
+        deal_name: "Acme Corp Starter Plan"
+        amount: 5000
+        owner_id: "owner-101"
+        dealstage: qualifiedtobuy
+    expectations:
+      - step: get-deal-owner
+        output:
+          owner_name: "Alex Rivera"
+      - step: request-approval
+        output:
+          message_id: "msg-approve-001"
+      - step: approve-deal
+        output:
+          message_id: "msg-approve-001"
+      - step: log-decision
+        output:
+          page_id: "page-decision-001"
+  - name: escalates deal over threshold for manual review
+    input:
+      data:
+        deal_name: "Globex Enterprise License"
+        amount: 75000
+        owner_id: "owner-202"
+        dealstage: qualifiedtobuy
+    expectations:
+      - step: get-deal-owner
+        output:
+          owner_name: "Alex Rivera"
+      - step: request-approval
+        output:
+          message_id: "msg-approve-001"
+      - step: escalate-deal
+        output:
+          message_id: "msg-escalate-001"
+      - step: log-decision
+        output:
+          page_id: "page-decision-001"

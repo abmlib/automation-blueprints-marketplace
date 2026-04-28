@@ -5,9 +5,21 @@ All notable changes to the Automation Blueprint DSL will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - Current
+## [0.2.0] - Current
 
 ### Added
+
+- **`templates/` packaged files**: Starter YAML templates (`webhook-to-action`, `scheduled-sync`, `event-chain`, `approval-flow`) bundled for consumers and mirrored on the Automation Blueprints Marketplace publish flow (`GET /blueprints/templates` on abmlib.dev).
+- **`./package.json` export** in `package.json` `exports` map for toolchain discovery.
+- **Template validation tests** (`__tests__/templates.spec.ts`) ensuring all templates validate against `validateDsl`.
+- **`js-yaml`** (devDependency) for tests that parse template YAML locally.
+
+Schema and runtime validation behavior are unchanged from 0.1.0 — this release adds distributable authoring starters and tooling metadata only.
+
+## [0.1.0]
+
+### Added
+
 - Initial DSL schema v0.1 with core automation blueprint structure
 - Support for trigger definitions with event filters
 - Support for multi-step workflows with conditional execution
@@ -17,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JSON Schema validation via Ajv
 
 ### Schema Structure
+
 - `id`, `name`, `version`: Blueprint metadata
 - `apps`: Required integration apps
 - `scopes`: OAuth/permission scopes
@@ -29,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `compatibility`: Platform compatibility metadata
 
 ### Supported Field Types
+
 - String patterns for IDs and versions
 - Array structures for multi-item fields
 - Object structures for complex configurations
@@ -37,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
+
 - Migration guide for future breaking changes
 - Extended validation rules
 - Enhanced transformation operators

@@ -12,6 +12,19 @@ npm install @automation-blueprints/dsl
 
 This package provides JSON Schema validation for automation blueprint definitions. It ensures that blueprint configurations conform to the standardized DSL format before publishing or deployment.
 
+## Starter templates
+
+As of **v0.2.0**, curated YAML starters ship with the published package under **`templates/`**:
+
+| Template ID | File | Pattern |
+|-------------|------|---------|
+| `webhook-to-action` | `templates/webhook-to-action.yaml` | Webhook trigger → transform → single action |
+| `scheduled-sync` | `templates/scheduled-sync.yaml` | Cron trigger → fetch → transform → upsert |
+| `event-chain` | `templates/event-chain.yaml` | App event → sequential steps with error handling |
+| `approval-flow` | `templates/approval-flow.yaml` | Trigger → condition → approval / rejection branches |
+
+After `npm install @automation-blueprints/dsl`, read files from `node_modules/@automation-blueprints/dsl/templates/` (or vendor them from this repository). Each file is validated by the same schema as `validateDsl`. On [abmlib.dev](https://abmlib.dev), **Start from template** in the publish flow loads these via `GET /blueprints/templates`.
+
 ## Usage
 
 ### Basic Validation
@@ -170,3 +183,4 @@ See repository root for license information.
 ## Related Packages
 
 - [`@automation-blueprints/adapters`](../adapters/README.md) - Runtime adapters for exporting blueprints to different platforms
+- [`@automation-blueprints/cli`](../cli/README.md) - `abmlib` CLI for validation and publishing

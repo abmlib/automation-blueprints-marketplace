@@ -1,0 +1,115 @@
+id: event-chain
+name: "Event Chain"
+version: "1.0.0"
+apps:
+  - stripe
+  - slack
+  - hubspot
+  - sendgrid
+scopes:
+  - customers.read
+  - chat:write
+  - crm.objects.contacts.write
+  - mail.send
+trigger:
+  app: stripe
+  event: payment_received
+  filters:
+    - field: amount
+      operator: greater_than
+      value: 0
+steps:
+  - id: get-customer
+    app: stripe
+    action: get_customer
+    inputs:
+      customer_id: "{{trigger.data.customer_id}}"
+    outputs:
+      - customer_email
+      - customer_name
+  - id: notify-team
+    app: slack
+    action: send_message
+    inputs:
+      channel: "#payments"
+      text: "Payment of ${{trigger.data.amount_display}} received from {{steps.get-customer.outputs.customer_name}} ({{steps.get-customer.outputs.customer_email}})"
+    outputs:
+      - message_id
+  - id: update-crm
+    app: hubspot
+    action: update_contact
+    inputs:
+      email: "{{steps.get-customer.outputs.customer_email}}"
+      properties:
+        last_payment_date: "{{trigger.data.created_at}}"
+        last_payment_amount: "{{trigger.data.amount_display}}"
+        lifecycle_stage: customer
+    outputs:
+      - contact_id
+  - id: send-receipt
+    app: sendgrid
+    action: send_email
+    inputs:
+      to: "{{steps.get-customer.outputs.customer_email}}"
+      subject: "Payment Confirmation - ${{trigger.data.amount_display}}"
+      template_id: "d-payment-receipt"
+      dynamic_data:
+        customer_name: "{{steps.get-customer.outputs.customer_name}}"
+        amount: "{{trigger.data.amount_display}}"
+        date: "{{trigger.data.created_at}}"
+    outputs:
+      - delivery_id
+retry:
+  attempts: 3
+  delayMs: 3000
+policies:
+  on_step_failure: continue_and_report
+fixtures:
+  trigger_event:
+    data:
+      customer_id: "cus_abc123"
+      amount_display: "149.99"
+      created_at: "2026-04-27T14:30:00Z"
+  get_customer_output:
+    customer_email: "jane.doe@example.com"
+    customer_name: "Jane Doe"
+  notify_team_output:
+    message_id: "msg-pay-001"
+  update_crm_output:
+    contact_id: "contact-801"
+  send_receipt_output:
+    delivery_id: "del-001"
+tests:
+  - name: processes payment through full notification chain
+    input:
+      data:
+        customer_id: "cus_abc123"
+        amount_display: "149.99"
+        created_at: "2026-04-27T14:30:00Z"
+    expectations:
+      - step: get-customer
+        output:
+          customer_email: "jane.doe@example.com"
+          customer_name: "Jane Doe"
+      - step: notify-team
+        output:
+          message_id: "msg-pay-001"
+      - step: update-crm
+        output:
+          contact_id: "contact-801"
+      - step: send-receipt
+        output:
+          delivery_id: "del-001"
+  - name: records small payment and notifies team
+    input:
+      data:
+        customer_id: "cus_xyz789"
+        amount_display: "9.99"
+        created_at: "2026-04-27T15:00:00Z"
+    expectations:
+      - step: get-customer
+        output:
+          customer_email: "john.smith@example.com"
+      - step: notify-team
+        output:
+          message_id: "msg-pay-002"
