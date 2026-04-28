@@ -24,7 +24,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build --workspace=@automation-blueprints/dsl --workspace=@automation-blueprints/adapters --workspace=@automation-blueprints/cli",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
