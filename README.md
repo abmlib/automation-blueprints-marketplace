@@ -22,8 +22,10 @@ The full marketplace platform at [abmlib.dev](https://abmlib.dev) provides brows
 ### Install
 
 ```bash
-npm install @automation-blueprints/dsl @automation-blueprints/adapters @automation-blueprints/cli
+npm install @automation-blueprints/dsl @automation-blueprints/adapters
 ```
+
+CLI source lives in **`packages/cli`**. Install from npm once **`@automation-blueprints/cli` is published**, or clone this repo and run `npm install` followed by **`npm exec --workspace=@automation-blueprints/cli -- abmlib <command>`** (see [`packages/cli/README.md`](./packages/cli/README.md)).
 
 ### Starter templates (DSL v0.2.0+)
 
@@ -31,11 +33,15 @@ Curated YAML files ship with **`@automation-blueprints/dsl`** in **`templates/`*
 
 ### CLI
 
+From this repository (`npm install` at root, then):
+
 ```bash
-npx --yes @automation-blueprints/cli validate ./my-blueprint.yaml
-abmlib login   # paste API token
-abmlib publish ./my-blueprint.yaml
+npm exec --workspace=@automation-blueprints/cli -- abmlib validate ./my-blueprint.yaml
+npm exec --workspace=@automation-blueprints/cli -- abmlib login
+npm exec --workspace=@automation-blueprints/cli -- abmlib publish ./my-blueprint.yaml
 ```
+
+When **`@automation-blueprints/cli`** is published to npm you can use **`npx @automation-blueprints/cli …`** instead.
 
 See [CLI package readme](./packages/cli/README.md).
 
