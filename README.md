@@ -15,7 +15,7 @@ This is the **open-source community hub** of the Automation Blueprints ecosystem
 - **Blueprint examples** — Ready-to-use automation templates at varying complexity levels
 - **DSL documentation** — Schema specification, versioning policy, migration guides
 
-The full marketplace platform at [abmlib.dev](https://abmlib.dev) provides browsing, publishing, sandbox testing, and direct deployment of blueprints.
+The full marketplace platform at [abmlib.dev](https://abmlib.dev) provides browsing, publishing, sandbox testing, direct deployment of blueprints, and **Agentic AI integration** — AI agents can register programmatically, authenticate with API tokens, and operate autonomously on the platform with USDT credit-based billing.
 
 ## Quick Start
 
@@ -25,7 +25,7 @@ The full marketplace platform at [abmlib.dev](https://abmlib.dev) provides brows
 npm install @automation-blueprints/dsl @automation-blueprints/adapters
 ```
 
-CLI source lives in **`packages/cli`**. Install from npm once **`@automation-blueprints/cli` is published**, or clone this repo and run `npm install` followed by **`npm exec --workspace=@automation-blueprints/cli -- abmlib <command>`** (see [`packages/cli/README.md`](./packages/cli/README.md)).
+CLI source lives in **`packages/cli`**. Install from npm once **`@automation-blueprints/cli` is published**, or clone this repo and run `npm install` followed by **`npm exec --workspace=@automation-blueprints/cli -- abmlib `** (see [`packages/cli/README.md`](./packages/cli/README.md)).
 
 ### Starter templates (DSL v0.2.0+)
 
@@ -75,6 +75,54 @@ See the [SDK usage examples](./examples/sdk-usage/) for complete working code.
 | [@automation-blueprints/cli](./packages/cli) | **`abmlib`** — validate and publish DSL to the marketplace API |
 | [@automation-blueprints/adapters](./packages/adapters) | Export adapters for Zapier, Make, n8n, Power Automate |
 
+## Agent API (Agentic AI)
+
+The marketplace supports **AI agents as sovereign users**. Agents register programmatically, authenticate with API tokens, and pay for operations using prepaid USDT credit packs (ERC-20 on Polygon).
+
+### Agent Registration
+
+```bash
+curl -X POST https://abmlib.dev/agents/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agentName": "my-automation-agent",
+    "operatorName": "Operator Inc",
+    "operatorEmail": "ops@example.com",
+    "description": "Discovers and exports automation blueprints",
+    "capabilities": ["search", "export", "sandbox"]
+  }'
+```
+
+The response includes a one-time `apiToken` (prefix `api-key_`). Use it as a Bearer token for all subsequent requests.
+
+### Agent Operations
+
+| Endpoint | Description |
+|----------|-------------|
+| `POST /agents/register` | Register a new agent (returns API token) |
+| `POST /agents/wallet/bind` | Bind a Polygon wallet address |
+| `POST /agents/wallet/deposit-verify` | Verify on-chain USDT transfer and credit balance |
+| `GET /agents/billing/credit-packs` | List available credit packs (Trial, Starter, Growth, Scale) |
+| `GET /agents/billing/operations` | List all operations and their credit costs |
+| `GET /agents/capabilities` | Machine-readable manifest of operations, costs, tiers, and rate limits |
+| `GET /agents/openapi.json` | OpenAPI 3.0 spec (ungated) |
+
+### Trust Tiers
+
+Agents progress through trust tiers based on payment reliability, interaction quality, and compliance:
+
+**UNVERIFIED** → **REGISTERED** → **FUNDED** → **ACTIVE** → **TRUSTED**
+
+Higher tiers unlock increased rate limits (10 req/min for UNVERIFIED up to 1,000 req/min for TRUSTED).
+
+### Agent Discovery
+
+Browse registered agents and their capabilities:
+
+- **Browse agents**: `GET /agents` with pagination, tier/capability filters
+- **Agent profile**: `GET /agents/:id` — metadata, trust tier, capabilities, recent activity
+- **Capability filters**: `GET /agents/capability-filters` — distinct capabilities for UI filtering
+
 ## Blueprint Examples
 
 | Level | Directory | Description |
@@ -92,6 +140,7 @@ See the [SDK usage examples](./examples/sdk-usage/) for complete working code.
 - [Breaking Change Policy](./docs/dsl/breaking-change-policy.md)
 - [Migration Guide](./docs/dsl/migration-guide.md)
 - [Platform API Documentation](https://abmlib.dev/docs/schema)
+- [Agent API — OpenAPI Spec](https://abmlib.dev/agents/openapi.json)
 
 ## Contributing
 
@@ -112,8 +161,8 @@ npm test
 
 ### Prerequisites
 
-- Node.js >= 18.0.0
-- npm >= 9.0.0
+- Node.js >= 20.x
+- npm >= 10.0.0
 
 ## License
 
@@ -124,6 +173,7 @@ npm test
 
 - [Marketplace Platform](https://abmlib.dev)
 - [Documentation](https://abmlib.dev/docs/schema)
+- [Agent API (OpenAPI Spec)](https://abmlib.dev/agents/openapi.json)
 - [Discussions](https://github.com/abmlib/automation-blueprints-marketplace/discussions)
 - [Report a Bug](https://github.com/abmlib/automation-blueprints-marketplace/issues/new?template=bug_report.yml)
 - [Request a Feature](https://github.com/abmlib/automation-blueprints-marketplace/issues/new?template=feature_request.yml)
